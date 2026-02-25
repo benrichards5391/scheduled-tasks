@@ -1,38 +1,46 @@
-# To run and test the code you need to update 4 places:
-# 1. Change MY_EMAIL/MY_PASSWORD to your own details.
-# 2. Go to your email provider and make it allow less secure apps.
-# 3. Update the SMTP ADDRESS to match your email provider.
-# 4. Update birthdays.csv to contain today's month and day.
-# See the solution video in the 100 Days of Python Course for explainations.
-
-
-from datetime import datetime
-import pandas
+# necessary imports
+import datetime as dt
+import pandas as pd
 import random
-import smtplib
 import os
+import smtplib
 
-# import os and use it to get the Github repository secrets
+# define variables for email
 MY_EMAIL = os.environ.get("MY_EMAIL")
-MY_PASSWORD = os.environ.get("MY_PASSWORD")
+PASSWORD = os.environ.get("PASSWORD")
 
-today = datetime.now()
-today_tuple = (today.month, today.day)
+# data manipulation
+data = pd.read_csv('birthdays.csv') # read data from pandas
+df = data.to_dict(orient='records') # convert data to a dictionary...orient='records' for formatting
 
-data = pandas.read_csv("birthdays.csv")
-birthdays_dict = {(data_row["month"], data_row["day"])                  : data_row for (index, data_row) in data.iterrows()}
-if today_tuple in birthdays_dict:
-    birthday_person = birthdays_dict[today_tuple]
-    file_path = f"letter_templates/letter_{random.randint(1, 3)}.txt"
-    with open(file_path) as letter_file:
-        contents = letter_file.read()
-        contents = contents.replace("[NAME]", birthday_person["name"])
+# get the current time from datetime module
+now = dt.datetime.now() # today
+month = now.month # current month
+day = now.day # current day
 
-    with smtplib.SMTP("YOUR EMAIL PROVIDER SMTP SERVER ADDRESS") as connection:
-        connection.starttls()
-        connection.login(MY_EMAIL, MY_PASSWORD)
-        connection.sendmail(
-            from_addr=MY_EMAIL,
-            to_addrs=birthday_person["email"],
-            msg=f"Subject:Happy Birthday!\n\n{contents}"
-        )
+# convert different birthday letter templates into a list that can later randomly choose from
+path = "./letter_templates"
+dir_list = os.listdir(path)
+
+for i in range(len(df)):
+    if df[i]['month'] == month and df[i]['day'] == day:
+        random_letter_file = random.choice(dir_list) # randomly choose letter template
+        with open('./letter_templates/' + random_letter_file) as file: # make sure to include parent directory
+            letter = file.read()
+            new_letter = letter.replace("[NAME]", df[i]['name']) # replace with the person's name
+            # establish a new connection for sending emails using SMTP
+        with smtplib.SMTP('smtp.gmail.com') as connection:
+            connection.starttls()
+            connection.login(user=MY_EMAIL, password=PASSWORD)
+            connection.sendmail(
+                from_addr=MY_EMAIL,
+                to_addrs=df[i]['email'],
+                msg=f"Subject:Happy Birthday!!!\n\n{new_letter}"
+            )
+
+
+
+
+
+
+
