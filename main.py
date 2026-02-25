@@ -7,7 +7,7 @@ import smtplib
 
 # define variables for email
 MY_EMAIL = os.environ.get("MY_EMAIL")
-PASSWORD = os.environ.get("PASSWORD")
+MY_PASSWORD = os.environ.get("MY_PASSWORD")
 
 # data manipulation
 data = pd.read_csv('birthdays.csv') # read data from pandas
