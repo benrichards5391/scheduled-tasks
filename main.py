@@ -31,7 +31,7 @@ for i in range(len(df)):
             # establish a new connection for sending emails using SMTP
         with smtplib.SMTP('smtp.gmail.com') as connection:
             connection.starttls()
-            connection.login(user=MY_EMAIL, password=PASSWORD)
+            connection.login(user=MY_EMAIL, password=MY_PASSWORD)
             connection.sendmail(
                 from_addr=MY_EMAIL,
                 to_addrs=df[i]['email'],
